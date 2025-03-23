@@ -14,7 +14,7 @@ This project is designed to consume and integrate with third-party APIs. It demo
 ---
 
 ## Technologies Used
-- **ASP.NET Core 6/7**
+- **ASP.NET Core 8**
 - **C#**
 - **HttpClientFactory**
 - **Newtonsoft.Json / System.Text.Json**
@@ -32,7 +32,7 @@ This project is designed to consume and integrate with third-party APIs. It demo
 ## Installation
 1. **Clone the Repository:**
 ```bash
-git clone https://github.com/yourusername/api-integration-project.git
+git clone https://github.com/pratik9815/API-Integration-Project.git
 ```
 
 2. **Navigate to the Project Directory:**
