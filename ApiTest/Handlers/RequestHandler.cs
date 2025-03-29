@@ -16,7 +16,7 @@ namespace SOAPApiTest.Handlers
             _restUrl = "https://restful-booker.herokuapp.com/";
         }
 
-        public string GetToken()
+        public string GetToken(out string statusCode)
         {
             var login = new
             {
@@ -34,10 +34,17 @@ namespace SOAPApiTest.Handlers
             var resStr = CallRest(dict).Result;
             if (!resStr.Item2.Equals("0"))
             {
+                statusCode = "999";
                 return "Something went wrong while the api call";
             }
             dynamic resObj = JsonConvert.DeserializeObject<dynamic>(resStr.Item1);
             string token = resObj.token;
+            if(string.IsNullOrEmpty(token)) 
+            {
+                statusCode = "1001";
+                return "No valid token obtained";
+            }
+            statusCode = "0";
             return token;
         }
 
@@ -137,15 +144,20 @@ namespace SOAPApiTest.Handlers
             try
             {
                 var client = _httpClientFactory.CreateClient("REST");
-                HttpRequestMessage httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, dict.RequestEndpoint);
-                if (dict.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
+                HttpRequestMessage httpRequestMessage = new HttpRequestMessage
                 {
-                    httpRequestMessage.Method = HttpMethod.Get;
-                    //if required add headers here
-                }
-                else
+                    Method = dict.Method.Equals("GET", StringComparison.OrdinalIgnoreCase) ? HttpMethod.Get : HttpMethod.Post,
+                    RequestUri = new Uri(dict.RequestEndpoint),
+                };
+                httpRequestMessage.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                if (!dict.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
                 {
                     httpRequestMessage.Content = new StringContent(dict.RequestBody, Encoding.UTF8, "application/json");
+                }
+
+                if (!string.IsNullOrEmpty(dict.Token))
+                {
+                    client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic",dict.Token);
                 }
                 // Add timeout handling
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));

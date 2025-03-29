@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
 
@@ -81,17 +82,31 @@ public class Login
 }// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 public class Bookingdates
 {
+    [JsonProperty("checkin")]
+    [Required]
     public string checkin { get; set; }
+    [JsonProperty("checkout")]
+    [Required]
     public string checkout { get; set; }
 }
 
 public class CreateBooking
 {
+    [JsonProperty("firstname")]
+    [Required]
     public string firstname { get; set; }
+    [JsonProperty("lastname")]
+    [Required]
     public string lastname { get; set; }
+    [JsonProperty("totalprice")]
     public int totalprice { get; set; }
+    [JsonProperty("depositpaid")]
+    [Required]
     public bool depositpaid { get; set; }
+    [JsonProperty("bookingdates")]
+    [Required]
     public Bookingdates bookingdates { get; set; }
+    [JsonProperty("additionalneeds")]
     public string additionalneeds { get; set; }
 }
 
