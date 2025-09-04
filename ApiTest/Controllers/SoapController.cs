@@ -1,4 +1,6 @@
 ﻿using System.Xml.Linq;
+using ApiTest.Model;
+using ApiTest.SerializerHelper;
 using Microsoft.AspNetCore.Mvc;
 using SOAPApiTest.Handlers;
 using SOAPApiTest.Model;
@@ -175,6 +177,44 @@ namespace SOAPApiTest.Controllers
                 return Ok(result.Value.Trim());
             }
             return Ok("No valid response obtained");
+        }
+
+        [HttpPost("/soap-ex")]
+        public async Task<ActionResult> SoapExample()
+        {
+            var requestEnvelope = new RequestEnvelope
+            {
+                Body = new ReqeustBody
+                {
+                    RequestData = new RequestData
+                    {
+                        FirstData = "12345",
+                        SecondData = "AddressChange"
+                    }
+                }
+            };
+
+            // STEP 2: Serialize to XML
+            string xmlRequest = SoapSerializerDeserializer.Create(requestEnvelope);
+            Console.WriteLine("Generated SOAP Request:");
+            Console.WriteLine(xmlRequest);
+
+            string xmlResponse = @"
+                            <soapenv:Envelope xmlns:soapenv=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:web=""WebServices"">
+                               <soapenv:Body>
+                                  <web:AmendmentResponse>
+                                     <web:Status>Success</web:Status>
+                                     <web:Message>Amendment processed successfully</web:Message>
+                                  </web:AmendmentResponse>
+                               </soapenv:Body>
+                            </soapenv:Envelope>";
+
+            // STEP 3: Deserialize response XML
+            var responseEnvelope = SoapSerializerDeserializer.Read<ResponseEnvelope>(xmlResponse);
+
+            Console.WriteLine("\nResponse Status: " + responseEnvelope.Body.AmendmentResponse.Status);
+            Console.WriteLine("Response Message: " + responseEnvelope.Body.AmendmentResponse.Message);
+            return Ok(new { Status = responseEnvelope.Body.AmendmentResponse.Status, Message = responseEnvelope.Body.AmendmentResponse.Message });
         }
     }
 }
